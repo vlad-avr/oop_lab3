@@ -15,7 +15,8 @@ public:
     }
 
     void getListMap(const std::string file_path){
-        std::ifstream in_file(file_path);
+        std::ifstream in_file;
+        in_file.open(file_path);
         if(in_file.is_open()){
             char cur_char = ' ';
             std::string line;
@@ -40,13 +41,7 @@ public:
     }
 
     void hint(int min_char_count = 2, int max_hint_size = 7){
-        std::string deb;
-        /*for(int i = 0; i < list_map.size(); i++){
-            deb.append(std::to_string(list_map[i]));
-            deb.append("\t");
-        }*/
-        deb.append(std::to_string(list_map.size()));
-        textarea->setText(QString::fromUtf8(deb));
+
     }
 
 private:

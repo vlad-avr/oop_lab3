@@ -8,7 +8,6 @@ MainWindow::MainWindow(std::string file_path, QWidget *parent)
 {
     ui->setupUi(this);
     this->completer = new TextCompleter(ui->main_edit, file_path);
-    init_threads();
 }
 
 MainWindow::~MainWindow()
