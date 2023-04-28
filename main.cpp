@@ -1,0 +1,14 @@
+#include "mainwindow.h"
+#include <iostream>
+#include <fstream>
+#include <QApplication>
+#include <QMessageBox>
+
+int main(int argc, char *argv[])
+{
+    std::string file_path = "words_list.txt";
+    QApplication a(argc, argv);
+    MainWindow w(file_path);
+    w.show();
+    return a.exec();
+}
