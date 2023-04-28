@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 #include "textcompleter.h"
 #include <QMainWindow>
+#include <QtConcurrent>
+#include <QFuture>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -15,10 +17,11 @@ public:
     MainWindow( std::string file_path, QWidget *parent = nullptr);
     ~MainWindow();
 
-    void init_threads();
+private slots:
+    void on_main_edit_textChanged();
 
 private:
     Ui::MainWindow *ui;
-    TextCompleter* completer;
+    TextCompleter completer;
 };
 #endif // MAINWINDOW_H
