@@ -9,7 +9,7 @@ MainWindow::MainWindow(std::string file_path, QWidget *parent)
     ui->setupUi(this);
     this->completer = TextCompleter(ui->main_edit, file_path);
     QFuture<void> future = QtConcurrent::run(&TextCompleter::getListMap, &this->completer, file_path);
-    ui->hint_list->setMaximumHeight(200);
+    ui->hint_list->setVisible(false);
 }
 
 MainWindow::~MainWindow()
@@ -25,8 +25,14 @@ void MainWindow::init_hint(){
 void MainWindow::on_main_edit_textChanged()
 {
     QFuture<void> future = QtConcurrent::run(&MainWindow::init_hint, this);
+}
 
-    //QMessageBox::warning(this, QString("bruuh"), QString::fromUtf8(res));
-    //ui->word_hints->setText(QString::fromUtf8(res));
+
+
+void MainWindow::on_hint_list_itemClicked(QListWidgetItem *item)
+{
+    QTextCursor cursor = ui->main_edit->textCursor();
+    cursor.movePosition(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
+    cursor.insertText(item->text());
 }
 

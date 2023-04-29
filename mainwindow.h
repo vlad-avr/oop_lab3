@@ -20,6 +20,9 @@ public:
 private slots:
     void on_main_edit_textChanged();
 
+
+    void on_hint_list_itemClicked(QListWidgetItem *item);
+
 private:
     Ui::MainWindow *ui;
     TextCompleter completer;

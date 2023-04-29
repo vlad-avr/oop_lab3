@@ -22,6 +22,10 @@ public:
     }
 
     void getListMap(const std::string file_path){
+        QMutex mutex;
+        while(!mutex.try_lock()){
+            continue;
+        }
         std::ifstream in_file;
         in_file.open(file_path, std::ios_base::in);
         if(in_file.is_open()){
@@ -40,8 +44,10 @@ public:
                 }
             }
             in_file.close();
+            mutex.unlock();
         }
         else{
+            mutex.unlock();
             return;
         }
     }
@@ -56,13 +62,13 @@ public:
             continue;
         }
         QTextCursor cursor = getCursor();
+        lw->setVisible(false);
         lw->clear();
         QRect lw_pos = textarea->cursorRect();
         lw->move(QPoint(lw_pos.right(), lw_pos.bottom()+10));
         cursor.movePosition(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
         QString str = cursor.selectedText();
         if(str.length() >= min_char_count){
-            std::vector<std::string> hints;
             int pos;
             for(auto &item : list_map){
                 if(item.second == str[0]){
@@ -84,14 +90,12 @@ public:
                        // hints.push_back(line);
                         //hint_str.append(line + "\n");
                         lw->addItem(QString::fromUtf8(line));
-
+                        if(!lw->isVisible()){
+                            lw->setVisible(true);
+                        }
                     }
                 }
             }
-            //return hint_str;
-        }
-        else{
-            //return "";
         }
         mutex.unlock();
     }
