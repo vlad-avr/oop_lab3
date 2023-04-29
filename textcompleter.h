@@ -5,8 +5,9 @@
 #include <fstream>
 #include <string>
 #include <QMessageBox>
-#include <QFile>
-#include <QIODevice>
+#include <QListWidget>
+#include <QtConcurrent>
+#include <QFuture>
 
 class TextCompleter
 {
@@ -16,7 +17,8 @@ public:
     TextCompleter(QTextEdit* textarea, std::string file_path){
         this->textarea = textarea;
         this->file_path = file_path;
-        getListMap(this->file_path);
+        //getListMap(file_path);
+        //future.waitForFinished();
     }
 
     void getListMap(const std::string file_path){
@@ -31,7 +33,7 @@ public:
             while(std::getline(in_file, line, ' ')){
                 prev_pos = cur_pos;
                 cur_pos = in_file.tellg();
-                qDebug() << prev_pos << line << cur_pos;
+                //qDebug() << prev_pos << line << cur_pos;
                 if(line[0] != cur_char){
                     cur_char = line[0];
                     list_map.insert({prev_pos, cur_char});
@@ -48,8 +50,11 @@ public:
         return textarea->textCursor();
     }
 
-    std::string hint(unsigned int min_char_count = 2, unsigned int max_hint_size = 7){
+    void hint(QListWidget* lw, unsigned int min_char_count = 2, unsigned int max_hint_size = 7){
         QTextCursor cursor = getCursor();
+        lw->clear();
+        QRect lw_pos = textarea->cursorRect();
+        lw->move(QPoint(lw_pos.right(), lw_pos.bottom()+10));
         cursor.movePosition(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
         QString str = cursor.selectedText();
         if(str.length() >= min_char_count){
@@ -63,8 +68,8 @@ public:
             }
             std::ifstream in_file(file_path, std::ios_base::in);
             in_file.seekg(pos, in_file.beg);
-            qDebug()<<in_file.tellg();
-            std::string hint_str;
+            //qDebug()<<in_file.tellg();
+            //std::string hint_str;
             if(in_file.is_open()){
                 std::string line;
                 while(std::getline(in_file, line, ' ')){
@@ -73,14 +78,15 @@ public:
                     }
                     else if(line.find(str.toStdString()) == 0){
                        // hints.push_back(line);
-                        hint_str.append(line + "\n");
+                        //hint_str.append(line + "\n");
+                        lw->addItem(QString::fromUtf8(line));
                     }
                 }
             }
-            return hint_str;
+            //return hint_str;
         }
         else{
-            return "";
+            //return "";
         }
     }
 

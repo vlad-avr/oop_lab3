@@ -24,13 +24,13 @@
      </rect>
     </property>
    </widget>
-   <widget class="QTextEdit" name="word_hints">
+   <widget class="QListWidget" name="hint_list">
     <property name="geometry">
      <rect>
-      <x>480</x>
+      <x>510</x>
       <y>10</y>
-      <width>271</width>
-      <height>541</height>
+      <width>100</width>
+      <height>150</height>
      </rect>
     </property>
    </widget>
