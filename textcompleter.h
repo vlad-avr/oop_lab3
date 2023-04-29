@@ -50,7 +50,11 @@ public:
         return textarea->textCursor();
     }
 
-    void hint(QListWidget* lw, unsigned int min_char_count = 2, unsigned int max_hint_size = 7){
+    void hint(QListWidget* lw, unsigned int min_char_count = 2/*, unsigned int max_hint_size = 7*/){
+        QMutex mutex;
+        while(!mutex.try_lock()){
+            continue;
+        }
         QTextCursor cursor = getCursor();
         lw->clear();
         QRect lw_pos = textarea->cursorRect();
@@ -80,6 +84,7 @@ public:
                        // hints.push_back(line);
                         //hint_str.append(line + "\n");
                         lw->addItem(QString::fromUtf8(line));
+
                     }
                 }
             }
@@ -88,6 +93,7 @@ public:
         else{
             //return "";
         }
+        mutex.unlock();
     }
 
 private:
