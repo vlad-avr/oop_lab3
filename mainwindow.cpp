@@ -24,7 +24,10 @@ void MainWindow::init_hint(){
 
 void MainWindow::on_main_edit_textChanged()
 {
+    ui->main_edit->blockSignals(true);
     QFuture<void> future = QtConcurrent::run(&MainWindow::init_hint, this);
+    future.waitForFinished();
+    ui->main_edit->blockSignals(false);
 }
 
 
@@ -33,6 +36,7 @@ void MainWindow::on_hint_list_itemClicked(QListWidgetItem *item)
 {
     QTextCursor cursor = ui->main_edit->textCursor();
     cursor.movePosition(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
+
     if(ui->hint_list->currentRow() == 0 && item->text()[item->text().length()-1] == '?'){
         std::string word = item->text().toStdString();
         word = word.substr(word.find_first_of('\'')+1, word.find_last_of('\'') - word.find_first_of('\'') - 1);
@@ -42,6 +46,7 @@ void MainWindow::on_hint_list_itemClicked(QListWidgetItem *item)
     else{
         cursor.insertText(item->text());
     }
+
 }
 
 

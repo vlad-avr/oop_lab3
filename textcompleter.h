@@ -89,7 +89,7 @@ public:
             cursor.movePosition(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
             QString str = cursor.selectedText();
             if(str.length() >= min_char_count){
-                int pos;
+                int pos = 0;
                 bool is_new = true;
                 for(auto &item : list_map){
                     if(item.second == str[0]){
