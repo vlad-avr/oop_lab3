@@ -11,10 +11,12 @@ CONFIG += c++17
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
+    mutextrylocker.cpp \
     textcompleter.cpp
 
 HEADERS += \
     mainwindow.h \
+    mutextrylocker.h \
     textcompleter.h
 
 FORMS += \
