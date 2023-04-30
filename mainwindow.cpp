@@ -35,7 +35,6 @@ void MainWindow::on_hint_list_itemClicked(QListWidgetItem *item)
     cursor.movePosition(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
     if(ui->hint_list->currentRow() == 0 && item->text()[item->text().length()-1] == '?'){
         std::string word = item->text().toStdString();
-        //int n = word.find_last_of('\'') - word.find_first_of('\'');
         word = word.substr(word.find_first_of('\'')+1, word.find_last_of('\'') - word.find_first_of('\'') - 1);
         QFuture<void> fut = QtConcurrent::run(&TextCompleter::update_pool, &this->completer, word);
         ui->hint_list->clear();

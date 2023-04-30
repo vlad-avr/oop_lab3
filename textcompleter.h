@@ -10,18 +10,32 @@
 #include "mutextrylocker.h"
 #include <QFuture>
 
+/*!
+ * \brief The TextCompleter class
+ */
 class TextCompleter
 {
 public:
-
+    /*!
+     * \brief Empty TextCompleter constructor
+     */
     TextCompleter(){}
+
+    /*!
+     * \brief TextCompleter constructor
+     * \param textarea - QTextEdit reference
+     * \param file_path - path to file with words pool
+     */
     TextCompleter(QTextEdit* textarea, std::string file_path){
         this->textarea = textarea;
         this->file_path = file_path;
-        //getListMap(file_path);
-        //future.waitForFinished();
     }
 
+
+    /*!
+     * \brief getListMap - generates map of position of unique first chars
+     * \param file_path - path to file with words pool
+     */
     void getListMap(const std::string file_path){
         QMutex mutex;
         MutexTryLocker locker(mutex);
@@ -48,12 +62,19 @@ public:
             }
         }
     }
-
+    /*!
+     * \brief getCursor - get copy of textarea cursor
+     * \return QTextCursor
+     */
     QTextCursor getCursor(){
         return textarea->textCursor();
     }
-
-    void hint(QListWidget* lw, unsigned int min_char_count = 2/*, unsigned int max_hint_size = 7*/){
+    /*!
+     * \brief hint - display hint for the current word
+     * \param lw - QListWidget for hints display
+     * \param min_char_count - minimum of characters required to display hints
+     */
+    void hint(QListWidget* lw, unsigned int min_char_count = 2){
 
         QMutex mutex;
         MutexTryLocker locker(mutex);
@@ -64,6 +85,7 @@ public:
 
             QRect lw_pos = textarea->cursorRect();
             lw->move(QPoint(lw_pos.right(), lw_pos.bottom()+10));
+            cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::MoveAnchor);
             cursor.movePosition(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
             QString str = cursor.selectedText();
             if(str.length() >= min_char_count){
@@ -77,8 +99,7 @@ public:
                 }
                 std::ifstream in_file(file_path, std::ios_base::in);
                 in_file.seekg(pos, in_file.beg);
-                //qDebug()<<in_file.tellg();
-                //std::string hint_str;
+
                 if(in_file.is_open()){
                     std::string line;
                     while(std::getline(in_file, line, ' ')){
@@ -106,6 +127,12 @@ public:
         }
     }
 
+    /*!
+     * \brief str_comp - compare 2 strings
+     * \param str1
+     * \param str2
+     * \return true if str1 is before str2 in alphabetical order (without taking in consideration length) and false otherwise
+     */
     bool str_comp(std::string* str1, std::string* str2) {
 
         int len = (*str1).length();
@@ -126,7 +153,10 @@ public:
         return true;
 
     }
-
+    /*!
+     * \brief update_pool - add new word to the pool
+     * \param word
+     */
     void update_pool(std::string word){
         QMutex mutex;
         MutexTryLocker locker(mutex);
@@ -156,6 +186,7 @@ public:
     }
 
 private:
+
     QTextEdit* textarea;
     std::map<int, char> list_map;
     std::string file_path;

@@ -29,6 +29,9 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    /*!
+     * \brief completer for completing text
+     */
     TextCompleter completer;
 };
 #endif // MAINWINDOW_H
