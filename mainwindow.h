@@ -23,6 +23,10 @@ private slots:
 
     void on_hint_list_itemClicked(QListWidgetItem *item);
 
+    void on_read_btn_clicked();
+
+    void on_save_btn_clicked();
+
 private:
     Ui::MainWindow *ui;
     TextCompleter completer;

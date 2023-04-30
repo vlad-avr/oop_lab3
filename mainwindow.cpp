@@ -33,6 +33,54 @@ void MainWindow::on_hint_list_itemClicked(QListWidgetItem *item)
 {
     QTextCursor cursor = ui->main_edit->textCursor();
     cursor.movePosition(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
-    cursor.insertText(item->text());
+    if(ui->hint_list->currentRow() == 0 && item->text()[item->text().length()-1] == '?'){
+        std::string word = item->text().toStdString();
+        //int n = word.find_last_of('\'') - word.find_first_of('\'');
+        word = word.substr(word.find_first_of('\'')+1, word.find_last_of('\'') - word.find_first_of('\'') - 1);
+        QFuture<void> fut = QtConcurrent::run(&TextCompleter::update_pool, &this->completer, word);
+        ui->hint_list->clear();
+    }
+    else{
+        cursor.insertText(item->text());
+    }
+}
+
+
+void MainWindow::on_read_btn_clicked()
+{
+    ui->main_edit->blockSignals(true);
+    std::string path = ui->path_edit->text().toStdString();
+    std::ifstream in_file(path);
+    ui->main_edit->clear();
+    if(in_file.is_open()){
+        std::string word;
+
+        while(std::getline(in_file, word)){
+            word.append("\n");
+            ui->main_edit->moveCursor(QTextCursor::End);
+            ui->main_edit->insertPlainText(QString::fromUtf8(word));
+            ui->main_edit->moveCursor(QTextCursor::End);
+        }
+
+    }
+    else{
+        QMessageBox::critical(this, QString::fromUtf8("ERROR"), QString::fromUtf8("File not found"));
+    }
+    ui->main_edit->blockSignals(false);
+}
+
+
+void MainWindow::on_save_btn_clicked()
+{
+    std::string path = ui->path_edit->text().toStdString();
+    std::ofstream out_file(path);
+    if(out_file.is_open()){
+        std::string word = ui->main_edit->toPlainText().toStdString();
+        out_file << word;
+        QMessageBox::information(this, "Saved", "Save was successful");
+    }
+    else{
+        QMessageBox::critical(this, QString::fromUtf8("ERROR"), QString::fromUtf8("File not found"));
+    }
 }
 

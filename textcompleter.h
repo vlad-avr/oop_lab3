@@ -29,6 +29,7 @@ public:
         std::ifstream in_file;
         in_file.open(file_path, std::ios_base::in);
         if(in_file.is_open()){
+            list_map.clear();
             char cur_char = '1';
             std::string line;
             list_map.insert({0,'1'});
@@ -44,12 +45,8 @@ public:
                 }
             }
             in_file.close();
-            mutex.unlock();
         }
-        else{
-            mutex.unlock();
-            return;
-        }
+        mutex.unlock();
     }
 
     QTextCursor getCursor(){
@@ -57,6 +54,7 @@ public:
     }
 
     void hint(QListWidget* lw, unsigned int min_char_count = 2/*, unsigned int max_hint_size = 7*/){
+
         QMutex mutex;
         while(!mutex.try_lock()){
             continue;
@@ -64,12 +62,14 @@ public:
         QTextCursor cursor = getCursor();
         lw->setVisible(false);
         lw->clear();
+
         QRect lw_pos = textarea->cursorRect();
         lw->move(QPoint(lw_pos.right(), lw_pos.bottom()+10));
         cursor.movePosition(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
         QString str = cursor.selectedText();
         if(str.length() >= min_char_count){
             int pos;
+            bool is_new = true;
             for(auto &item : list_map){
                 if(item.second == str[0]){
                     pos = item.first;
@@ -86,6 +86,9 @@ public:
                     if(line[0] != str[0]){
                         break;
                     }
+                    else if(line == str.toStdString()){
+                        is_new = false;
+                    }
                     else if(line.find(str.toStdString()) == 0){
                        // hints.push_back(line);
                         //hint_str.append(line + "\n");
@@ -95,9 +98,63 @@ public:
                         }
                     }
                 }
+                if(is_new){
+                    lw->setVisible(true);
+                    lw->insertItem(0, QString::fromUtf8("Add '" + str.toStdString() + "' to pool?"));
+                }
             }
         }
         mutex.unlock();
+    }
+
+    bool str_comp(std::string* str1, std::string* str2) {
+
+        int len = (*str1).length();
+        if(len > (*str2).length()){
+            len = (*str2).length();
+        }
+        for (int i = 0; i < len; i++) {
+            if ((*str1)[i] < (*str2)[i]) {
+                return true;
+            }
+            else if ((*str1)[i] > (*str2)[i]) {
+                return false;
+            }
+            else {
+                continue;
+            }
+        }
+        return true;
+
+    }
+
+    void update_pool(std::string word){
+        QMutex mutex;
+        while(!mutex.try_lock()){
+            continue;
+        }
+        std::vector<std::string> buffer;
+        std::ifstream in_file(file_path);
+        if(in_file.is_open()){
+            std::string line;
+            while(std::getline(in_file, line, ' ')){
+                if(str_comp(&word, &line) && word != ""){
+                    buffer.push_back(word);
+                    word = "";
+                }
+                buffer.push_back(line);
+            }
+            in_file.close();
+        }
+        std::ofstream out_file(file_path);
+        if(out_file.is_open()){
+            for(int i = 0; i < buffer.size(); i++){
+                out_file << buffer[i] << ' ';
+            }
+            out_file.close();
+        }
+        mutex.unlock();
+        getListMap(file_path);
     }
 
 private:
